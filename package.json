@@ -1,0 +1,22 @@
+{
+  "name": "cryptopals",
+  "version": "1.0.0",
+  "description": "Crypto excercises",
+  "main": "hexToBaseSixtyFour.js",
+  "scripts": {
+    "test": "jasmine-node spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sdanilsson/crypto.git"
+  },
+  "author": "anilsson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sdanilsson/crypto/issues"
+  },
+  "homepage": "https://github.com/sdanilsson/crypto",
+  "dependencies": {
+    "jasmine-node": "^1.14.5"
+  }
+}
