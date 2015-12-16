@@ -1,24 +1,69 @@
 var xor = require('../node_modules/bitwise-xor');
 var fs = require('fs');
 
-exports.readfile = function(){
+exports.readfile = function () {
     var lines = [];
     fs.readFile('/Users/nilssona/WebstormProjects/crypto/resources/4.txt', 'utf8', function (err, data) {
         if (err) {
             return console.log(err);
         }
         lines = data.split(/\r?\n/);
-        console.log(lines[0])
+        console.log(lines[1])
     });
 
     return lines;
 };
+
+
+exports.encryptRepeating = function (callback, path, key) {
+    return {
+        then: function (callback) {
+            // read the file into an array
+            encoded = [];
+
+            fs.readFile(path, 'utf8', function (err, data) {
+                if (err) {
+                    return console.log(err);
+                }
+
+                var splitKey = key.split('');
+                var values = data.split('');
+
+                var keyCode = splitKey.map(function (element) {
+                    return parseInt(element.charCodeAt(0), 10).toString(16);
+                })
+
+                var bytes = values.map(function (element) {
+                    return parseInt(element.charCodeAt(0), 10).toString(16);
+                });
+
+                var counter = 0;
+
+                bytes.forEach(function(byte){
+                    if(counter == 3){
+                        counter =0;
+                    }
+                    var xored = xor(new Buffer(pad(byte,2), 'hex'), new Buffer(pad(keyCode[counter],2), 'hex'));
+
+                    //console.log(xored.toString('hex'));
+                    encoded.push(xored.toString('hex'));
+
+                    counter++;
+                });
+                callback(encoded.join(''));
+            });
+        }
+    }
+}
+
 
 exports.hex2bin = function (hex1, hex2) {
     var xored = xor(new Buffer(hex1, 'hex'), new Buffer(hex2, 'hex'));
     var hex = xored.toString('hex');
     return hex;
 }
+
+
 
 /**
  * Attempts to find a message hidden in the 4.txt file
@@ -27,9 +72,9 @@ exports.hex2bin = function (hex1, hex2) {
  * @param path
  * @returns {{then: Function}}
  */
-exports.decryptHidden = function(callback,path,frequency_limit){
+exports.decryptHidden = function (callback, path, frequency_limit) {
     return {
-        then: function(callback){
+        then: function (callback) {
             // read the file into an array
             fs.readFile(path, 'utf8', function (err, data) {
                 if (err) {
@@ -67,44 +112,7 @@ exports.decryptHidden = function(callback,path,frequency_limit){
 
 }
 
-/*
-exports.decryptHidden = function (path) {
-
-    fs.readFile(path, 'utf8', function (err, data) {
-        if (err) {
-            return console.log(err);
-        }
-        var lines = data.split(/\r?\n/);
-
-        var output = [];
-        for (var l = 0; l < lines.length; l++) {
-
-            for (var data = 0; data < 127; data++) {
-                var key = String.fromCharCode(data);
-                var arr = decrypt(lines[l], key);
-
-                // calculate english language probability.
-                var frequency = calculateFrequency(arr);
-                if (frequency > 4.6) {
-                    var temp = [];
-                    arr.forEach(function (element) {
-                        temp.push(String.fromCharCode(element));
-                    });
-                    output.push("key: " + key + "  freq:" + frequency + "   [" + temp.join('') + "]");
-                }
-            }
-
-        }
-
-        console.log(output);
-
-    });
-
-    return "test";
-}
-*/
-
-function calculateFrequency (text) {
+function calculateFrequency(text) {
     var freqs = {
         'a': 8.167,
         'b': 1.492,
@@ -144,7 +152,7 @@ function calculateFrequency (text) {
         }
     });
 
-    return count/text.length;
+    return count / text.length;
 
 }
 
@@ -158,6 +166,7 @@ function decrypt(hex, c) {
 
     return hexNum;
 }
+
 
 function makeChars(value) {
     return String.fromCharCode(value);
